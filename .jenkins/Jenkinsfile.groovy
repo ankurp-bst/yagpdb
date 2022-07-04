@@ -4,7 +4,7 @@ pipeline {
     label 'botlabs-bastion-engg'
     }
     tools {
-        go 'go1.17.7'
+        go 'go:1.17.7'
     }
     environment {
         GO114MODULE = 'on'
