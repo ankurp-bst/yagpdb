@@ -1,39 +1,34 @@
 #!groovy
 pipeline {
-
     agent {
     label 'botlabs-bastion-engg'
     }
-    stages {
-    stage('Checkout code') {
-    steps {
-        checkout scm
+    tools {
+        go 'go1.17.7'
     }
+    environment {
+        GO114MODULE = 'on'
+        CGO_ENABLED = 0 
+        GOPATH = "${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"
     }
-    stage('Build Go Binaries') {
-    agent {
-        docker {
-        image 'golang:1.17.5'
-        label 'botlabs-bastion-engg'
+    stages {        
+        stage('Pre Test') {
+            steps {
+                echo 'Installing dependencies'
+                sh 'go version'
+                sh 'go get -u golang.org/x/lint/golint'
+            }
         }
+        
+        stage('Build') {
+            steps {
+                echo 'Compiling and building'
+                sh 'go build'
+            }
         }
-        steps {
-        sh 'sudo .jenkins/execute.sh'
-        }
-      }
-    stage('Upload Artifacts') {
-    steps {
-        sh '.jenkins/upload.sh'
+
+        
+        
     }
-    }
-  }
-    post {
-        always {
-            echo 'IM THE MAILER'
-            
-            emailext body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
-                to: "mohammad.mazid@bluestacks.com,pankajkumar.jaiswal@bluestacks.com" ,
-                subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}"      
-        }
-    }
+    
 }
