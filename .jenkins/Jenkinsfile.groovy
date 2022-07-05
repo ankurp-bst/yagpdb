@@ -1,3 +1,4 @@
+#!groovy
 pipeline {
     agent 'botlabs-bastion-engg'
     tools {
