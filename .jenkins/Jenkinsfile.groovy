@@ -3,7 +3,7 @@ AGENT_LABEL = "botlabs-bastion-engg"
 pipeline {
     agent
    label "${AGENT_LABEL}"
-}
+
     
     environment {
         GO114MODULE = 'on'
