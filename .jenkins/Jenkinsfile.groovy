@@ -1,6 +1,6 @@
 #!groovy
 pipeline {
-    agent 'botlabs-bastion-engg'
+    agent any
     tools {
         go 'go1.14'
     }
