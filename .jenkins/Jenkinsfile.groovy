@@ -1,8 +1,9 @@
 #!groovy
 AGENT_LABEL = "botlabs-bastion-engg"
 pipeline {
-    agent
-   label "${AGENT_LABEL}"
+    agent {
+    label 'botlabs-bastion-engg'
+    }
 
     
     environment {
