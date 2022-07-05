@@ -1,4 +1,5 @@
 #!groovy
+AGENT_LABEL = "botlabs-bastion-engg"
 pipeline {
     agent any
     
