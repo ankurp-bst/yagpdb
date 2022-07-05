@@ -18,7 +18,7 @@ pipeline {
         }
         }
         steps {
-        sh 'sudo .jenkins/execute.sh'
+        sh '.jenkins/execute.sh'
         }
       }
     stage('Upload Artifacts') {
