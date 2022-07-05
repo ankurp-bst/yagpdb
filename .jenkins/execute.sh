@@ -7,7 +7,7 @@ pwd=$(pwd)
 mkdir -p ${pwd}/bin/
 export GOBIN=${pwd}/bin/
 export GOCACHE="/tmp/" && cd ${pwd}/cmd/yagpdb && go install -ldflags "-X github.com/botlabs-gg/yagpdb/v2/common.VERSION=$(git describe --tags)"
-export GOCACHE="/tmp/" && cd ${pwd}/cmd/dso-cli && go install -ldflags "-X github.com/botlabs-gg/yagpdb/v2/common.VERSION=$(git describe --tags)"
+#export GOCACHE="/tmp/" && cd ${pwd}/cmd/dso-cli && go install -ldflags "-X github.com/botlabs-gg/yagpdb/v2/common.VERSION=$(git describe --tags)"
 cd ${pwd}
 VER=$(cat go.mod | egrep -m 1 github.com/botlabs-gg/yagpdb/v2)
 VER=`echo $VER | sed -e 's/^[[:space:]]*//'`

@@ -23,7 +23,7 @@ pipeline {
       }
     stage('Upload Artifacts') {
     steps {
-        sh '.jenkins/upload.sh'
+        sh 'sudo .jenkins/upload.sh'
     }
     }
   }
