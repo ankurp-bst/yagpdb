@@ -50,6 +50,8 @@ var RulePartMap = map[int]RulePart{
 	35: &MessageLengthTrigger{Inverted: true},
 	36: &SlowmodeTrigger{Links: true, ChannelBased: false},
 	37: &SlowmodeTrigger{Links: true, ChannelBased: true},
+	38: &MemberWarnedTrigger{},
+	39: &MemberKickedTrigger{},
 
 	// Conditions 2xx
 	200: &MemberRolesCondition{Blacklist: true},
@@ -255,4 +257,18 @@ type JoinListener interface {
 	RulePart
 
 	CheckJoin(triggerCtx *TriggerContext) (isAffected bool, err error)
+}
+
+// WarnListener is a trigger that does stuff when a member gets warned
+type WarnListener interface {
+	RulePart
+
+	CheckWarned(triggerCtx *TriggerContext) (isAffected bool, err error)
+}
+
+// KickListener is a trigger that does stuff when a user gets kicked
+type KickListener interface {
+	RulePart
+
+	CheckKicked(triggerCtx *TriggerContext) (isAffected bool, err error)
 }

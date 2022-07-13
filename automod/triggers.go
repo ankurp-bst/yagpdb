@@ -15,6 +15,7 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/common"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
 	"github.com/botlabs-gg/yagpdb/v2/lib/dstate"
+	"github.com/botlabs-gg/yagpdb/v2/moderation"
 	"github.com/botlabs-gg/yagpdb/v2/safebrowsing"
 )
 
@@ -1376,6 +1377,71 @@ func (mj *MemberJoinTrigger) UserSettings() []*SettingDef {
 
 func (mj *MemberJoinTrigger) CheckJoin(t *TriggerContext) (isAffected bool, err error) {
 	return true, nil
+}
+
+/////////////////////////////////////////////////////////////
+
+var _ WarnListener = (*MemberWarnedTrigger)(nil)
+
+type MemberWarnedTrigger struct {
+}
+
+func (mj *MemberWarnedTrigger) Kind() RulePartType {
+	return RulePartTrigger
+}
+
+func (mj *MemberWarnedTrigger) DataType() interface{} {
+	return nil
+}
+
+func (mj *MemberWarnedTrigger) Name() (name string) {
+	return "User Warned"
+}
+
+func (mj *MemberWarnedTrigger) Description() (description string) {
+	return "Triggers when a member gets warned"
+}
+
+func (mj *MemberWarnedTrigger) UserSettings() []*SettingDef {
+	return []*SettingDef{}
+}
+
+func (mj *MemberWarnedTrigger) CheckWarned(t *TriggerContext) (isAffected bool, err error) {
+	return true, nil
+}
+
+/////////////////////////////////////////////////////////////
+
+var _ KickListener = (*MemberKickedTrigger)(nil)
+
+type MemberKickedTrigger struct {
+}
+
+func (mj *MemberKickedTrigger) Kind() RulePartType {
+	return RulePartTrigger
+}
+
+func (mj *MemberKickedTrigger) DataType() interface{} {
+	return nil
+}
+
+func (mj *MemberKickedTrigger) Name() (name string) {
+	return "User Kicked"
+}
+
+func (mj *MemberKickedTrigger) Description() (description string) {
+	return "Triggers when a user gets kicked from the guild"
+}
+
+func (mj *MemberKickedTrigger) UserSettings() []*SettingDef {
+	return []*SettingDef{}
+}
+
+func (mj *MemberKickedTrigger) CheckKicked(t *TriggerContext) (isAffected bool, err error) {
+	// If we poll the audit log too fast then there sometimes wont be a audit log entry
+	time.Sleep(time.Second * 3)
+	_, entry := moderation.FindAuditLogEntry(t.GS.ID, discordgo.AuditLogActionMemberKick, t.MS.User.ID, time.Second*5)
+	return entry != nil, nil
 }
 
 /////////////////////////////////////////////////////////////

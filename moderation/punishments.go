@@ -10,6 +10,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/botlabs-gg/yagpdb/v2/bot"
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
 	"github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2"
 	seventsmodels "github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2/models"
 	"github.com/botlabs-gg/yagpdb/v2/common/templates"
@@ -623,6 +624,11 @@ func WarnUser(config *Config, guildID int64, channel *dstate.ChannelState, msg *
 	err = common.GORM.Create(warning).Error
 	if err != nil {
 		return common.ErrWithCaller(err)
+	}
+
+	err = pubsub.Publish("user_warned", -1, warning)
+	if err != nil {
+		logger.WithError(err).Error("failed publishing user warned event")
 	}
 
 	gs := bot.State.GetGuild(guildID)

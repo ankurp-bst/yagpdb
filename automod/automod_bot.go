@@ -13,6 +13,7 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/bot/eventsystem"
 	"github.com/botlabs-gg/yagpdb/v2/commands"
 	"github.com/botlabs-gg/yagpdb/v2/common"
+	"github.com/botlabs-gg/yagpdb/v2/common/pubsub"
 	"github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2"
 	schEventsModels "github.com/botlabs-gg/yagpdb/v2/common/scheduledevents2/models"
 	"github.com/botlabs-gg/yagpdb/v2/lib/discordgo"
@@ -29,6 +30,9 @@ func (p *Plugin) BotInit() {
 	eventsystem.AddHandlerAsyncLastLegacy(p, p.handleGuildMemberUpdate, eventsystem.EventGuildMemberUpdate)
 	eventsystem.AddHandlerAsyncLastLegacy(p, p.handleMsgUpdate, eventsystem.EventMessageUpdate)
 	eventsystem.AddHandlerAsyncLastLegacy(p, p.handleGuildMemberJoin, eventsystem.EventGuildMemberAdd)
+	eventsystem.AddHandlerAsyncLastLegacy(p, p.handleGuildMemberRemove, eventsystem.EventGuildMemberRemove)
+
+	pubsub.AddHandler("user_warned", p.handleUserWarned, UserWarnedModel{})
 
 	scheduledevents2.RegisterHandler("amod2_reset_channel_ratelimit", ResetChannelRatelimitData{}, handleResetChannelRatelimit)
 }
@@ -217,6 +221,22 @@ func (p *Plugin) handleGuildMemberJoin(evt *eventsystem.EventData) {
 	p.checkUsername(ms)
 }
 
+func (p *Plugin) handleUserWarned(evt *pubsub.Event) {
+	dataCast := evt.Data.(*UserWarnedModel)
+	ms, err := bot.GetMember(dataCast.GuildID, dataCast.UserID)
+	if err != nil {
+		logger.WithError(err).WithField("guild", dataCast.GuildID).Error("failed fetching member state")
+		return
+	}
+	p.checkWarned(ms)
+}
+
+func (p *Plugin) handleGuildMemberRemove(evt *eventsystem.EventData) {
+	evtData := evt.GuildMemberRemove()
+	ms := dstate.MemberStateFromMember(evtData.Member)
+	p.checkKicked(ms)
+}
+
 func (p *Plugin) checkNickname(ms *dstate.MemberState) {
 	gs := bot.State.GetGuild(ms.GuildID)
 	if gs == nil {
@@ -262,6 +282,38 @@ func (p *Plugin) checkJoin(ms *dstate.MemberState) {
 		}
 
 		return cast.CheckJoin(&TriggerContext{GS: gs, MS: ms, Data: trig.ParsedSettings})
+	})
+}
+
+func (p *Plugin) checkWarned(ms *dstate.MemberState) {
+	gs := bot.State.GetGuild(ms.GuildID)
+	if gs == nil {
+		return
+	}
+
+	p.CheckTriggers(nil, gs, ms, nil, nil, func(trig *ParsedPart) (activated bool, err error) {
+		cast, ok := trig.Part.(WarnListener)
+		if !ok {
+			return false, nil
+		}
+
+		return cast.CheckWarned(&TriggerContext{GS: gs, MS: ms, Data: trig.ParsedSettings})
+	})
+}
+
+func (p *Plugin) checkKicked(ms *dstate.MemberState) {
+	gs := bot.State.GetGuild(ms.GuildID)
+	if gs == nil {
+		return
+	}
+
+	p.CheckTriggers(nil, gs, ms, nil, nil, func(trig *ParsedPart) (activated bool, err error) {
+		cast, ok := trig.Part.(KickListener)
+		if !ok {
+			return false, nil
+		}
+
+		return cast.CheckKicked(&TriggerContext{GS: gs, MS: ms, Data: trig.ParsedSettings})
 	})
 }
 

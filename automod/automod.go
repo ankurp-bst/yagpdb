@@ -100,6 +100,11 @@ const (
 	MaxRulesetsPremium = 25
 )
 
+type UserWarnedModel struct {
+	GuildID int64
+	UserID  int64 `json:",string"`
+}
+
 func GuildMaxMessageTriggers(guildID int64) int {
 	if isPremium, _ := premium.IsGuildPremium(guildID); isPremium {
 		return MaxMessageTriggersPremium
