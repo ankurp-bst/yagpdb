@@ -2,6 +2,7 @@ package automod
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -829,14 +830,18 @@ func (send *SendChannelMessageEffect) UserSettings() []*SettingDef {
 
 func (send *SendChannelMessageEffect) Apply(ctxData *TriggeredRuleData, settings interface{}) error {
 	// Ignore bots
+	logger.Info("\nInside Apply for SendMessage")
+	fmt.Println("\nInside Apply for SendMessage")
 	if ctxData.MS.User.Bot {
 		return nil
 	}
 
 	settingsCast := settings.(*SendChannelMessageEffectData)
 	logger.Info("\nLogChannel: ", settingsCast.LogChannel)
+	fmt.Println("\nLogChannel: ", settingsCast.LogChannel)
 	if ctxData.CS != nil {
 		logger.Info("CS: ", ctxData.CS.ID)
+		fmt.Println("CS: ", ctxData.CS.ID)
 	}
 
 	// If we dont have any channel data, we can't send a message
@@ -862,12 +867,14 @@ func (send *SendChannelMessageEffect) Apply(ctxData *TriggeredRuleData, settings
 
 	var logChannel int64
 	logger.Info("\tcondition: ", settingsCast.LogChannel != 0)
+	fmt.Println("\tcondition: ", settingsCast.LogChannel != 0)
 	if settingsCast.LogChannel != 0 {
 		logChannel = settingsCast.LogChannel
 	} else {
 		logChannel = ctxData.CS.ID
 	}
 	logger.Info("\t\tlogChannel: ", logChannel)
+	fmt.Println("\t\tlogChannel: ", logChannel)
 
 	message, err := common.BotSession.ChannelMessageSendComplex(logChannel, msgSend)
 	if err != nil {
