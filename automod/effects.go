@@ -834,6 +834,10 @@ func (send *SendChannelMessageEffect) Apply(ctxData *TriggeredRuleData, settings
 	}
 
 	settingsCast := settings.(*SendChannelMessageEffectData)
+	logger.Info("\nLogChannel: ", settingsCast.LogChannel)
+	if ctxData.CS != nil {
+		logger.Info("CS: ", ctxData.CS.ID)
+	}
 
 	// If we dont have any channel data, we can't send a message
 	if ctxData.CS == nil && settingsCast.LogChannel == 0 {
@@ -857,11 +861,13 @@ func (send *SendChannelMessageEffect) Apply(ctxData *TriggeredRuleData, settings
 	}
 
 	var logChannel int64
+	logger.Info("\tcondition: ", settingsCast.LogChannel != 0)
 	if settingsCast.LogChannel != 0 {
 		logChannel = settingsCast.LogChannel
 	} else {
 		logChannel = ctxData.CS.ID
 	}
+	logger.Info("\t\tlogChannel: ", logChannel)
 
 	message, err := common.BotSession.ChannelMessageSendComplex(logChannel, msgSend)
 	if err != nil {
